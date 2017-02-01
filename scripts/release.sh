@@ -108,8 +108,20 @@ rm -f $ansible_yaml_dir/*.bak
 # Build the docker container for the swarm installation
 ansible_spec=$output_dir/install/ansible/Dockerfile
 ansible_base=$output_dir/install/ansible/Dockerfile.base
+ansible_spec_full=$output_dir/install/ansible/Dockerfile.full
 docker build -t contiv_install_base -f $ansible_base $output_dir
 docker build --no-cache -t contiv/install:$VERSION -f $ansible_spec $output_dir
+
+# Save the auth proxy & aci-gw images for packaging the full docker images with contiv install binaries
+docker tag contiv/install:$VERSION contiv_install_minimal
+docker pull contiv/auth_proxy:$auth_proxy_version
+docker save contiv/auth_proxy:$auth_proxy_version -o $output_dir/auth-proxy-image.tar
+docker pull contiv/aci-gw:$aci_gw_version
+docker save contiv/aci-gw:$aci_gw_version -o $output_dir/aci-gw-image.tar
+docker build --no-cache --build-arg contiv_version=$contiv_version -t contiv/install-local:$VERSION -f $ansible_spec_full $output_dir
+rm $output_dir/auth-proxy-image.tar
+rm $output_dir/aci-gw-image.tar
+
 rm -rf $output_dir/scripts
 if [ "$DEV_IMAGE_NAME" = "$VERSION" ]; then
   # This is a dev build, so save the images locally.
@@ -120,8 +132,10 @@ else
   echo "**************************************************************************************************"
 fi
 
-# Clean up the Dockerfile, this is not part of the release bits.
+# Clean up the Dockerfiles, they are not part of the release bits.
 rm -f $ansible_spec
+rm -f $ansible_base
+rm -f $ansible_spec_full
 
 tar -cvzf $tmp_output_file -C $release_dir .
 mv $tmp_output_file $output_file

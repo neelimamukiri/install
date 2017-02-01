@@ -1,0 +1,13 @@
+FROM contiv_install_minimal
+MAINTAINER contiv
+
+RUN mkdir -p /var/contiv/files/
+RUN curl -ksL -o /var/contiv/files/openvswitch-2.3.1-2.el7.x86_64.rpm  https://cisco.box.com/shared/static/zzmpe1zesdpf270k9pml40rlm4o8fs56.rpm
+RUN curl -ksL -o /var/contiv/files/v1dvgoboo5zgqrtn6tu27vxeqtdo2bdl.deb https://cisco.box.com/shared/static/v1dvgoboo5zgqrtn6tu27vxeqtdo2bdl.deb
+RUN curl -ksL -o /var/contiv/files/ymbuwvt2qprs4tquextw75b82hyaxwon.deb https://cisco.box.com/shared/static/ymbuwvt2qprs4tquextw75b82hyaxwon.deb
+
+ARG contiv_version
+RUN curl -sL -o /var/contiv/files/netplugin-$contiv_version.tar.bz2 https://github.com/contiv/netplugin/releases/download/$contiv_version/netplugin-$contiv_version.tar.bz2
+
+ADD aci-gw-image.tar /var/contiv/files/aci-gw-image.tar
+ADD auth-proxy-image.tar /var/contiv/files/auth-proxy-image.tar

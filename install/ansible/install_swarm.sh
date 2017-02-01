@@ -33,7 +33,7 @@ check_for_prereqs() {
 
 usage() {
   echo "Usage:"
-  echo "./install_swarm.sh -f <host configuration file> -n <netmaster IP> -a <ansible options> -e <ansible key> -i <install scheduler stack> -z <installer config file>  -m <network mode - standalone/aci> -d <fwd mode - routing/bridge> -v <ACI image>"
+  echo "./install_swarm.sh -f <host configuration file> -n <netmaster IP> -a <ansible options> -e <ansible key> -i <install scheduler stack> -z <installer config file>  -m <network mode - standalone/aci> -d <fwd mode - routing/bridge> -v <ACI image> -l "
 
   echo ""
   exit 1
@@ -43,7 +43,8 @@ mkdir -p $src_conf_path
 # Check for docker only when requested to install the scheduler stack
 # Else there are no pre-requisites on the host
 install_scheduler=""
-while getopts ":f:z:c:k:n:a:e:im:d:v:" opt; do
+local_mode="false"
+while getopts ":f:z:c:k:n:a:e:im:d:v:l" opt; do
   case $opt in
     f)
       cp $OPTARG $host_contiv_config
@@ -78,6 +79,9 @@ while getopts ":f:z:c:k:n:a:e:im:d:v:" opt; do
       ;;
     v)
       aci_image=$OPTARG
+      ;;
+    l)
+      local_mode="true"
       ;;
     :)
       echo "An argument required for $OPTARG was not passed"
@@ -125,7 +129,14 @@ else
 fi
 
 echo "Starting the ansible container"
-docker run --rm -v $src_conf_path:$container_conf_path contiv/install:__CONTIV_INSTALL_VERSION__ sh -c "./install/ansible/install.sh -n $netmaster -a \"$ans_opts\" $install_scheduler -m $contiv_network_mode -d $fwd_mode $aci_param" 
+if [ "$local_mode" = "true" ]; then
+  image_name=contiv/install-local:__CONTIV_INSTALL_VERSION__
+else
+  image_name=contiv/install:__CONTIV_INSTALL_VERSION__
+fi
+
+docker run --rm -v $src_conf_path:$container_conf_path $image_name sh -c "./install/ansible/install.sh -n $netmaster -a \"$ans_opts\" $install_scheduler -m $contiv_network_mode -d $fwd_mode $aci_param" 
+
 rm -rf $src_conf_path
 
 echo "Installation is complete"
