@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ssh_key=${CONTIV_SSH_KEY:-"cluster/export/insecure_private_key"}
 user=${CONTIV_SSH_USER:-"vagrant"}
 install_version=${CONTIV_RELEASE:-"contiv-devbuild"}

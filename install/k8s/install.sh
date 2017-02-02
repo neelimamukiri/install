@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #
 # The following parameters are user defined - and vary for each installation
 #
@@ -190,10 +192,13 @@ fi
 echo "Applying contiv installation"
 echo "$netmaster netmaster" >> /etc/hosts
 kubectl apply -f $contiv_yaml
+
 if [ "$fwd_mode" = "routing" ]; then
   chmod +x ./netctl
   sleep 60
   ./netctl --netmaster http://$netmaster:9999 global set --fwd-mode routing
 else
+  # Deleting kube-dns deployment
+  kubectl get deployment/kube-dns -n kube-system -o json  > kube-dns.yaml
   kubectl delete deployment/kube-dns -n kube-system
 fi

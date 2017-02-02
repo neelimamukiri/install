@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This provides paths shared between install.sh and install_swarm.sh
 . ./install/ansible/install_defaults.sh
 

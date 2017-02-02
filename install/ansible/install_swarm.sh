@@ -1,4 +1,6 @@
-# This is the installation script for Cisco Unified Container Networking platform.
+#!/bin/bash
+
+# This is the installation script for Contiv.
 
 . ./install/ansible/install_defaults.sh
 

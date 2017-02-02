@@ -1,3 +1,5 @@
+#!/bin/bash
+
 contiv_master=192.168.2.12
 install_version="contiv-${BUILD_VERSION:-devbuild}"
 
