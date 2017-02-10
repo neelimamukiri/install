@@ -56,6 +56,6 @@ install-test-swarm:
 # ci does everything necessary for a Github PR-triggered CI run.
 # currently, this means building a container image and running
 # all of the available tests.
-ci: release install-test-swarm install-test-kubeadm
+ci: release-test-swarm release-test-kubeadm
 
 .PHONY: all release cluster cluster-destroy release-test-swarm release-test-kubeadm release-test-kubelegacy install-test-swarm install-test-kubeadm install-test-kube-legacy

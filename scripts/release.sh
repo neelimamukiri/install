@@ -2,15 +2,12 @@
 
 set -euo pipefail
 
-DEV_IMAGE_NAME="devbuild"
-IMAGE_NAME="contiv/auth_proxy"
-VERSION=${BUILD_VERSION-$DEV_IMAGE_NAME}
-
-auth_proxy_version=${CONTIV_API_PROXY_VERSION:-"1.0.0-beta.2"}
-aci_gw_version=${CONTIV_ACI_GW_VERSION:-"latest"}
-contiv_version=${CONTIV_VERSION:-"v1.0.0-alpha-01-28-2017.10-23-11.UTC"}
-etcd_version=${CONTIV_ETCD_VERSION:-2.3.7}
-docker_version=${CONTIV_DOCKER_VERSION:-1.12.6}
+auth_proxy_version=${CONTIV_API_PROXY_VERSION}
+aci_gw_version=${CONTIV_ACI_GW_VERSION:}
+contiv_version=${CONTIV_VERSION}
+etcd_version=${CONTIV_ETCD_VERSION}
+docker_version=${CONTIV_DOCKER_VERSION}
+install_version=${VERSION_STRING}
 
 function usage {
   echo "Usage:"
@@ -105,8 +102,8 @@ sed -i.bak "s/__ETCD_VERSION__/$etcd_version/g" $ansible_env
 chmod +x $output_dir/install/install.sh
 chmod +x $k8s_yaml_dir/install.sh
 chmod +x $k8s_yaml_dir/uninstall.sh
-sed -i.bak "s/__CONTIV_INSTALL_VERSION__/$VERSION/g" $ansible_yaml_dir/install_swarm.sh
-sed -i.bak "s/__CONTIV_INSTALL_VERSION__/$VERSION/g" $ansible_yaml_dir/uninstall_swarm.sh
+sed -i.bak "s/__CONTIV_INSTALL_VERSION__/$install_version/g" $ansible_yaml_dir/install_swarm.sh
+sed -i.bak "s/__CONTIV_INSTALL_VERSION__/$install_version/g" $ansible_yaml_dir/uninstall_swarm.sh
 chmod +x $ansible_yaml_dir/install_swarm.sh
 chmod +x $ansible_yaml_dir/uninstall_swarm.sh
 chmod +x $output_dir/install/ansible/install.sh
@@ -120,14 +117,6 @@ ansible_spec=$output_dir/install/ansible/Dockerfile
 docker build -t contiv/install:$VERSION -f $ansible_spec $output_dir
 
 rm -rf $output_dir/scripts
-if [ "$DEV_IMAGE_NAME" = "$VERSION" ]; then
-  # This is a dev build, so save the images locally.
-  docker save contiv/install:$VERSION -o $output_dir/contiv-install-image.tar
-else
-  echo "**************************************************************************************************"
-  echo " Please ensure that contiv/install:$VERSION is pushed to docker hub"
-  echo "**************************************************************************************************"
-fi
 
 # Clean up the Dockerfiles, they are not part of the release bits.
 rm -f $ansible_spec
