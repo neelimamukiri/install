@@ -63,6 +63,7 @@ while getopts ":n:a:im:d:v:ps:l:t:" opt; do
 		s)
 			cluster_store=$OPTARG
 			install_etcd=false
+			;;
 		l)
 			listen_url=$OPTARG
 			;;
